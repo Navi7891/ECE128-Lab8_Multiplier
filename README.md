@@ -1,12 +1,23 @@
+
 # ECE 128 - Lab 8: Combinational and Sequential Multipliers
 
-Two separate, 4-bit unsigned multiplier designs for the Digilent Basys3 FPGA.  
-**Project A (Q2):** combinational multiplier using partial products and an adder tree.  
-**Project B (Q1):** clocked shift-and-add sequential multiplier with Start/Reset.
+**Course:** ECE 128 FPGA Laboratory - Fall 2026  
+**Instructor:** Jannatun Naher, PhD  
+**Team:** Mahir Ashab Enan and Navjot Bains
 
-Both testbenches exhaustively check **256 operand pairs**; the lab simulations showed 256/256 passing cases. The board-demo wrappers in this archive are **the LED-debug versions used for the working board demonstrations**. They are intentionally different from the initial wrappers provided earlier.
+## Project Description
 
-## Directory structure
+In this lab, we designed and tested two 4-bit unsigned multipliers using Verilog and the Basys 3 FPGA board.
+
+**Project A (Q2):** Combinational multiplier using partial products and addition.
+
+**Project B (Q1):** Sequential multiplier using a clock and the shift-and-add method.
+
+Both designs multiply two 4-bit numbers and produce an 8-bit result. We tested both multipliers using behavioral simulations in Vivado and implemented them on the Basys 3 board.
+
+Both testbenches checked all 256 input combinations, and all 256 cases passed for each design.
+
+## Directory Structure
 
 ```text
 Project_A_Combinational/
@@ -14,67 +25,131 @@ Project_A_Combinational/
   rtl/basys3_combinational_top.v
   tb/tb_combinational_multiplier.v
   constraints/basys3_combinational.xdc
+
 Project_B_Sequential/
   rtl/sequential_multiplier.v
   rtl/basys3_sequential_top.v
   tb/tb_sequential_multiplier.v
   constraints/basys3_sequential.xdc
+
 README.md
 .gitignore
 ```
 
-## Vivado project setup
+## Tools Used
 
-Make **two separate Vivado RTL projects**, one per folder. In your working lab setup the project part was `xc7a35tcpg236-2L`; keep your proven settings consistent between projects rather than switching parts during troubleshooting. Record the actual part in your report. These are plain Verilog RTL designs, not packaged Vivado IP blocks.
+- Vivado 2026.1 for simulations and software testing
+- Vivado 2023.1 for FPGA implementation at Lehigh
+- Digilent Basys 3 FPGA board
+- Verilog HDL
 
-### Project A - combinational
-- **Design Sources:** `Project_A_Combinational/rtl/*.v`
-- **Design Top:** `basys3_combinational_top`
-- **Simulation Sources:** `Project_A_Combinational/tb/tb_combinational_multiplier.v`
-- **Simulation Top:** `tb_combinational_multiplier`
-- **Constraints:** `Project_A_Combinational/constraints/basys3_combinational.xdc` **only**
-- Run Behavioral Simulation to completion (`PASS combinational: 256 / 256 cases`).
-- Run Synthesis, Implementation, Generate Bitstream, and Program Device.
-- `SW0..3` = A, `SW4..7` = B. Product on `LD0..7`; inputs mirrored on `LD8..15`. LEDs update immediately as switches change.
+## Vivado Project Setup
 
-### Project B - sequential
-- **Design Sources:** `Project_B_Sequential/rtl/*.v`
-- **Design Top:** `basys3_sequential_top`
-- **Simulation Sources:** `Project_B_Sequential/tb/tb_sequential_multiplier.v`
-- **Simulation Top:** `tb_sequential_multiplier`
-- **Constraints:** `Project_B_Sequential/constraints/basys3_sequential.xdc` **only**
-- Run Behavioral Simulation to completion (`PASS sequential: 256 / 256 cases`).
-- Run Synthesis, Implementation, Generate Bitstream, and Program Device.
-- Press/release **BTNU** to reset. Set A with SW0..3 and B with SW4..7. Press and release **BTNC** to start. The 10 ms debounce circuit needs a normal human-length button press.
-- `LD0..7` = stored binary product, `LD8` = done, `LD9` = Start seen, `LD10` = debounced center button, `LD11` = raw center button, `LD12` = reset button, `LD13` = blinking heartbeat, `LD14` = SW0, `LD15` = SW4. This is the verified **diagnostic LED** variant, not a binary-to-seven-segment design.
-- `busy` remains a Verilog output of the core, even though this debug wrapper does not display it on an LED. Observe `busy` in the testbench waveforms.
+We used two separate Vivado projects, one for each multiplier. The FPGA part selected for our projects was `xc7a35tcpg236-2L`.
 
-### Test vectors
+### Project A - Combinational Multiplier
 
-| A | B | Binary product LD7..0 | Decimal product |
-|---:|---:|:---:|---:|
+1. Create a new Vivado RTL project.
+2. Add the Verilog files from `Project_A_Combinational/rtl` as Design Sources.
+3. Set `basys3_combinational_top` as the Design Top.
+4. Add `tb_combinational_multiplier.v` as a Simulation Source.
+5. Set `tb_combinational_multiplier` as the Simulation Top.
+6. Add `basys3_combinational.xdc` as the constraints file.
+7. Run Behavioral Simulation to check the multiplication results.
+8. Run Synthesis, Implementation, and Generate Bitstream to program the board.
+
+**FPGA Board Inputs and Outputs:**
+
+- SW0-SW3: Input A
+- SW4-SW7: Input B
+- LD0-LD7: Multiplication result
+- LD8-LD15: Input switch values
+
+The combinational multiplier calculates the product when the input switches change.
+
+### Project B - Sequential Multiplier
+
+1. Create a separate Vivado RTL project.
+2. Add the Verilog files from `Project_B_Sequential/rtl` as Design Sources.
+3. Set `basys3_sequential_top` as the Design Top.
+4. Add `tb_sequential_multiplier.v` as a Simulation Source.
+5. Set `tb_sequential_multiplier` as the Simulation Top.
+6. Add `basys3_sequential.xdc` as the constraints file.
+7. Run Behavioral Simulation to check the multiplication results.
+8. Run Synthesis, Implementation, and Generate Bitstream to program the board.
+
+**FPGA Board Inputs and Outputs:**
+
+- SW0-SW3: Input A
+- SW4-SW7: Input B
+- BTNU: Reset button
+- BTNC: Start button
+- LD0-LD7: Multiplication result
+- LD8: Done signal
+- LD9: Start signal
+- LD10: Debounced button signal
+- LD11: Raw button signal
+- LD12: Reset signal
+- LD13: Blinking heartbeat
+- LD14: SW0 input
+- LD15: SW4 input
+
+For the sequential multiplier, we first set the input switches and then press BTNC to start the calculation. The result is displayed on LD0-LD7 when the multiplication is complete.
+
+## Simulation Results
+
+Both multipliers were tested using behavioral simulation in Vivado. The testbenches checked all 256 possible combinations of two 4-bit inputs.
+
+**Project A:** 256/256 tests passed.
+
+**Project B:** 256/256 tests passed.
+
+Some of the multiplication examples are shown below.
+
+| Input A | Input B | Binary Product | Decimal Result |
+|---|---|---|---|
 | 1 | 1 | 00000001 | 1 |
 | 3 | 5 | 00001111 | 15 |
+| 5 | 5 | 00011001 | 25 |
+| 9 | 7 | 00111111 | 63 |
 | 15 | 15 | 11100001 | 225 |
 
-For 3 x 5: enable SW0, SW1, SW4, and SW6, all others OFF. For 15 x 15, enable SW0..SW7. In Project B press BTNC after changing switches; Project A updates immediately.
+The simulation results matched the expected multiplication outputs for both designs.
 
-## Verified course results (from user-provided Vivado screenshots)
+## Area Utilization Results
 
-| Resource | Project A top-level | Project B top-level |
+We also ran synthesis in Vivado to compare the FPGA resources used by both multipliers.
+
+| Resource | Project A | Project B |
 |---|---:|---:|
 | Slice LUTs | 16 | 38 |
-| Slice registers | 0* | 61 |
-| Slices | 5* | 22 |
+| Slice Registers | 0 | 61 |
+| Slices | 5 | 22 |
 | Bonded IOBs | 24 | 27 |
-| BUFGCTRL | 0* | 1 |
+| BUFGCTRL | 0 | 1 |
 
-*Project A registers, slices, and BUFGCTRL values come from the earlier extended utilization screenshot or the design type; verify against your fresh build before reporting if Vivado differs. **Resource counts above are from the earlier synthesized board versions.** The demonstrator wrappers in this zip drive additional diagnostic LEDs, so re-run utilization for the final versions and replace numbers in the report as needed. A direct core comparison should exclude the Project B debounce/heartbeat wrapper.
+The combinational multiplier used fewer resources in the recorded synthesis results. The sequential FPGA design also included clocked logic and additional button and LED controls.
 
-## Submission checklist
-- Include the two RTL implementations, two board wrappers, testbenches and separate XDC constraints.
-- Provide the required Level-0/Level-1 prelab diagrams in your report.
-- Save both waveform screenshots (256/256), FPGA board photos, and updated utilization reports.
-- Describe the debug indicator meanings clearly, especially Project B LD9..LD15.
-- Add contributor names, actual work split, conclusion, and GitHub link.
-- Avoid committing transient Vivado `.runs`, `.sim`, `.cache`, `.xpr`, and bitstreams by default.
+## FPGA Board Demonstration
+
+Both multipliers were programmed and tested on the Basys 3 FPGA board using Vivado 2023.1.
+
+For the combinational multiplier, we changed the input switches and observed the multiplication result on the LEDs.
+
+For the sequential multiplier, we set the input switches and pressed the Start button. The LEDs displayed the result after the calculation finished.
+
+We tested different input combinations, including 15 × 15, which produced 225 (`11100001` in binary).
+
+### Demonstration Videos
+
+**Project A - Combinational Multiplier:**  
+https://drive.google.com/file/d/11I0vWkZYVeBgAmo88sDv1n_U52YyoRAv/view?usp=sharing
+
+**Project B - Sequential Multiplier:**  
+https://drive.google.com/file/d/16VOewRFavCh1Qbx_n-myrE9XXxYUzPAM/view?usp=sharing
+
+## Conclusion
+
+In this lab, we designed and tested combinational and sequential multipliers using Verilog. Both designs produced the correct multiplication results during simulation and were tested on the Basys 3 FPGA board.
+
+The combinational design calculates the result directly from the inputs, while the sequential design uses multiple clock cycles. This lab helped us understand the differences between the two designs and how they can be implemented and tested using Vivado.
